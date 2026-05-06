@@ -130,11 +130,6 @@
       margin-top: 5px;
       font-weight: 600;
     }
-    .product-carry {
-      font-size: 13px;
-      color: #777;
-      margin-top: 5px;
-    }
 
     /* 入力コントロールエリア（カード内、下段） */
     .input-area {
@@ -551,14 +546,12 @@
         card.className    = 'product-card' + (p.stock !== null ? ' entered' : '');
         card.dataset.name = p.name;
 
-        const carryText = `繰越 ${p.carry}${p.unit}　仕入 ${p.purchase}${p.unit}`;
         const qv = v => stockVal !== '' && Math.round(parseFloat(stockVal)*100)/100 === v ? 'active' : '';
 
         card.innerHTML = `
           <div class="product-name">${escHtml(p.name)}</div>
           ${p.spec ? `<div class="product-spec">${escHtml(p.spec)}</div>` : ''}
           ${p.lot  ? `<span class="product-lot">1LOT = ${escHtml(p.lot)}</span>` : ''}
-          <div class="product-carry">${escHtml(carryText)}</div>
           <div class="input-area">
             <div class="stepper-row">
               <div class="stepper-label">現在庫</div>
