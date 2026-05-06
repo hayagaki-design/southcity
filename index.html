@@ -38,20 +38,18 @@
     }
     .progress-label { font-size: 13px; opacity: .8; margin-top: 4px; text-align: right; }
 
-    /* ── モード切替タブ ── */
+    /* ── モード切替タブ（ヘッダー内） ── */
     .mode-tabs {
       display: flex;
-      background: #0D47A1;
-      position: sticky;
-      top: 77px;
-      z-index: 90;
+      margin-top: 10px;
+      border-top: 1px solid rgba(255,255,255,.2);
     }
     .mode-tab {
       flex: 1;
-      padding: 12px 0;
+      padding: 10px 0;
       font-size: 16px;
       font-weight: 700;
-      color: rgba(255,255,255,.6);
+      color: rgba(255,255,255,.55);
       background: none;
       border: none;
       border-bottom: 3px solid transparent;
@@ -92,6 +90,9 @@
       border-left: 4px solid #3F51B5;
       margin-top: 10px;
       letter-spacing: .05em;
+      position: sticky;
+      top: 122px;
+      z-index: 50;
     }
     .category-header.pur { background: #FFF3E0; color: #BF360C; border-left-color: #E65100; }
 
@@ -349,12 +350,11 @@
     <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
     <div class="progress-label" id="progress-label">0 / 0 件入力済み</div>
   </div>
+  <div class="mode-tabs">
+    <button class="mode-tab active" data-mode="inventory" onclick="switchMode('inventory')">📦 棚卸</button>
+    <button class="mode-tab"        data-mode="purchase"  onclick="switchMode('purchase')">🚚 仕入れ</button>
+  </div>
 </header>
-
-<div class="mode-tabs">
-  <button class="mode-tab active" data-mode="inventory" onclick="switchMode('inventory')">📦 棚卸</button>
-  <button class="mode-tab"        data-mode="purchase"  onclick="switchMode('purchase')">🚚 仕入れ</button>
-</div>
 
 <!-- ========== 棚卸セクション ========== -->
 <div id="inv-section">
@@ -854,6 +854,10 @@
     setTimeout(() => t.classList.remove('show'), 3000);
   }
 
+  function cleanUnit(u) {
+    return String(u || '').replace(/^\d+/, '').trim();
+  }
+
   function escHtml(s) {
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
@@ -921,7 +925,7 @@
         </div>
         <div class="history-name">${escHtml(r.name)}</div>
         <div class="history-sub">${escHtml(r.supplier)}${r.note ? '　' + escHtml(r.note) : ''}</div>
-        <div class="history-qty">${r.qty} ${escHtml(r.unit)}</div>
+        <div class="history-qty">${r.qty} ${escHtml(cleanUnit(r.unit))}</div>
         <div class="history-actions">
           <button class="hist-btn edit"   onclick='openEditModal(${JSON.stringify(r)})'>修正</button>
           <button class="hist-btn delete" onclick="confirmDelete(${r.rowNum}, '${escHtml(r.name)}')">削除</button>
