@@ -269,6 +269,9 @@
       display: flex;
       background: #fff;
       border-bottom: 1px solid #e0e0e0;
+      position: sticky;
+      top: 108px;
+      z-index: 80;
     }
     .pur-sub-tab {
       flex: 1; padding: 11px 0;
@@ -682,10 +685,10 @@
       .then(r => {
         btn.disabled = false; btn.textContent = '一括送信'; btn.classList.remove('saving');
         if (r.success) {
-          document.getElementById('product-list').style.display  = 'none';
-          document.getElementById('inv-submit-area').style.display = 'none';
-          document.getElementById('inv-done').style.display       = 'block';
-          document.getElementById('inv-done-msg').textContent     = r.message + '\nスプレッドシートに自動反映されました。';
+          showToast('✅ ' + r.message);
+          btn.textContent = '✓ 送信済み';
+          btn.style.background = '#388E3C';
+          btn.disabled = true;
         } else { showToast('エラー: ' + r.message); }
       })
       .catch(err => {
