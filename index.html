@@ -12,6 +12,7 @@
       background: #f0f2f5;
       color: #333;
       padding-bottom: 88px;
+      overflow-x: hidden;
     }
 
     /* ヘッダー */
@@ -124,7 +125,7 @@
     .stepper-label {
       font-size: 13px;
       color: #999;
-      width: 48px;
+      width: 40px;
       flex-shrink: 0;
     }
     .stepper {
@@ -134,12 +135,12 @@
       flex: 1;
     }
     .step-btn {
-      width: 52px;
-      height: 52px;
-      font-size: 26px;
+      width: 44px;
+      height: 48px;
+      font-size: 24px;
       font-weight: bold;
       border: 2px solid #ddd;
-      border-radius: 12px;
+      border-radius: 10px;
       background: #f5f5f5;
       color: #444;
       cursor: pointer;
@@ -154,17 +155,18 @@
 
     .stock-input {
       flex: 1;
-      height: 52px;
-      font-size: 24px;
+      height: 48px;
+      font-size: 22px;
       font-weight: bold;
       text-align: center;
       border: 2px solid #ddd;
-      border-radius: 12px;
+      border-radius: 10px;
       background: #FFFDE7;
       color: #333;
       -webkit-appearance: none;
       appearance: none;
       min-width: 0;
+      width: 0;
     }
     .stock-input.filled {
       border-color: #66BB6A;
@@ -172,9 +174,9 @@
       color: #2E7D32;
     }
     .unit-label {
-      font-size: 15px;
+      font-size: 14px;
       color: #666;
-      width: 32px;
+      width: 28px;
       flex-shrink: 0;
     }
 
@@ -286,9 +288,8 @@
     #calc-modal {
       background: #fff;
       width: 100%;
-      min-height: 52vh;
       border-radius: 24px 24px 0 0;
-      padding: 14px 14px 32px;
+      padding: 12px 12px 24px;
       box-shadow: 0 -4px 24px rgba(0,0,0,.2);
     }
     #calc-handle {
@@ -311,17 +312,17 @@
       text-align: right;
     }
     #calc-expr  { font-size: 14px; color: #aaa; min-height: 20px; word-break: break-all; }
-    #calc-value { font-size: 40px; font-weight: bold; color: #111; line-height: 1.2; }
+    #calc-value { font-size: 34px; font-weight: bold; color: #111; line-height: 1.2; }
     .calc-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 9px;
+      gap: 7px;
     }
     .calc-btn {
-      height: 62px;
+      height: 52px;
       border: none;
-      border-radius: 14px;
-      font-size: 24px;
+      border-radius: 12px;
+      font-size: 20px;
       font-weight: 600;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
