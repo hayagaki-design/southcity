@@ -686,9 +686,6 @@
         btn.disabled = false; btn.textContent = '一括送信'; btn.classList.remove('saving');
         if (r.success) {
           showToast('✅ ' + r.message);
-          btn.textContent = '✓ 送信済み';
-          btn.style.background = '#388E3C';
-          btn.disabled = true;
         } else { showToast('エラー: ' + r.message); }
       })
       .catch(err => {
