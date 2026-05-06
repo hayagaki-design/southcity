@@ -415,6 +415,11 @@
     QUERY_SCRIPT_URL ||
     (TEMPLATE_SCRIPT_URL.includes('<?=') ? '' : TEMPLATE_SCRIPT_URL)
   ).trim();
+
+  // GitHub Pages上ではGAS本体へ自動転送して確実に動かす
+  if (location.hostname.endsWith('github.io')) {
+    location.replace(SCRIPT_URL);
+  }
   let allProducts = [];
 
   // ページ読み込み時にデータ取得
