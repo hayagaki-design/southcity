@@ -408,8 +408,10 @@
 
 <script>
   const TEMPLATE_SCRIPT_URL = '<?= scriptUrl ?>';
-  const QUERY_SCRIPT_URL = new URLSearchParams(window.location.search).get('api') || '';
+  const FIXED_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby6641CimYDtnyqor0ykjd6bqxPLzyn707cQpAogZ_xVHVNos39jHdcAuPa4RQyXpIx/exec';
+  const QUERY_SCRIPT_URL = '';
   const SCRIPT_URL = (
+    FIXED_SCRIPT_URL ||
     QUERY_SCRIPT_URL ||
     (TEMPLATE_SCRIPT_URL.includes('<?=') ? '' : TEMPLATE_SCRIPT_URL)
   ).trim();
