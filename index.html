@@ -263,6 +263,70 @@
     .calc-btn.set    { background: #E8F5E9; color: #2E7D32; font-size: 17px; }
     .calc-btn.cancel { background: #f0f0f0; color: #666; font-size: 16px; }
 
+    /* ── 仕入れ サブタブ ── */
+    .pur-sub-tabs {
+      display: flex;
+      background: #fff;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .pur-sub-tab {
+      flex: 1; padding: 11px 0;
+      font-size: 15px; font-weight: 600;
+      color: #aaa; background: none; border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer; -webkit-tap-highlight-color: transparent;
+    }
+    .pur-sub-tab.active { color: #E65100; border-bottom-color: #E65100; }
+
+    /* ── 仕入れ履歴 ── */
+    .history-item {
+      background: #fff;
+      margin: 8px 10px;
+      border-radius: 14px;
+      padding: 14px 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.08);
+    }
+    .history-header {
+      display: flex; justify-content: space-between; align-items: baseline;
+      margin-bottom: 4px;
+    }
+    .history-date   { font-size: 13px; color: #888; }
+    .history-slip   { font-size: 12px; color: #bbb; }
+    .history-name   { font-size: 17px; font-weight: 700; margin-bottom: 2px; }
+    .history-sub    { font-size: 13px; color: #888; }
+    .history-qty    { font-size: 18px; font-weight: 700; color: #E65100; }
+    .history-actions { display: flex; gap: 8px; margin-top: 10px; }
+    .hist-btn {
+      flex: 1; height: 40px; border-radius: 10px; border: 2px solid;
+      font-size: 14px; font-weight: 700; cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .hist-btn.edit   { border-color: #1565C0; color: #1565C0; background: #E3F2FD; }
+    .hist-btn.delete { border-color: #c62828; color: #c62828; background: #FFEBEE; }
+
+    /* ── 修正モーダル ── */
+    #edit-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.5); z-index: 200; align-items: flex-end;
+    }
+    #edit-overlay.open { display: flex; }
+    #edit-modal {
+      background: #fff; width: 100%;
+      border-radius: 24px 24px 0 0;
+      padding: 12px 16px 32px;
+      box-shadow: 0 -4px 24px rgba(0,0,0,.2);
+    }
+    #edit-handle { width: 40px; height: 4px; background: #ddd; border-radius: 2px; margin: 0 auto 14px; }
+    #edit-title  { font-size: 16px; font-weight: bold; text-align: center; margin-bottom: 16px; }
+    .edit-form   { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+    .edit-actions { display: flex; gap: 10px; }
+    .edit-btn {
+      flex: 1; height: 52px; border-radius: 12px; border: none;
+      font-size: 17px; font-weight: bold; cursor: pointer;
+    }
+    .edit-btn.cancel { background: #f0f0f0; color: #555; }
+    .edit-btn.save   { background: #E65100; color: #fff; }
+
     /* ── トースト ── */
     #toast {
       position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
@@ -308,6 +372,15 @@
 
 <!-- ========== 仕入れセクション ========== -->
 <div id="pur-section" style="display:none">
+
+  <!-- サブタブ -->
+  <div class="pur-sub-tabs">
+    <button class="pur-sub-tab active" onclick="switchPurTab('input')">新規入力</button>
+    <button class="pur-sub-tab"        onclick="switchPurTab('history')">履歴・修正</button>
+  </div>
+
+  <!-- 新規入力パネル -->
+  <div id="pur-input-panel">
   <div class="pur-form-card">
     <div class="form-row">
       <span class="form-label">納品日</span>
@@ -334,6 +407,14 @@
     <p id="pur-done-msg"></p>
     <button class="back-btn" onclick="resetPurchase()">続けて入力する</button>
   </div>
+  </div><!-- /pur-input-panel -->
+
+  <!-- 履歴・修正パネル -->
+  <div id="pur-history-panel" style="display:none">
+    <div id="pur-hist-loading" style="display:none"><div class="loading-spin"></div>読み込み中...</div>
+    <div id="pur-hist-list"></div>
+  </div>
+
 </div>
 
 <!-- 棚卸 送信エリア -->
@@ -349,6 +430,42 @@
 </div>
 
 <div id="toast"></div>
+
+<!-- 修正モーダル -->
+<div id="edit-overlay" onclick="editOverlayClick(event)">
+  <div id="edit-modal">
+    <div id="edit-handle"></div>
+    <div id="edit-title">仕入れを修正</div>
+    <div class="edit-form">
+      <div class="form-row">
+        <span class="form-label">納品日</span>
+        <input type="date" id="edit-date" class="form-input">
+      </div>
+      <div class="form-row">
+        <span class="form-label">伝票No.</span>
+        <input type="text" id="edit-slip" class="form-input" placeholder="（任意）">
+      </div>
+      <div class="form-row">
+        <span class="form-label">商品名</span>
+        <input type="text" id="edit-name" class="form-input" readonly
+          style="background:#f5f5f5;color:#888;font-size:14px;">
+      </div>
+      <div class="form-row">
+        <span class="form-label">数量</span>
+        <input type="number" id="edit-qty" class="form-input"
+          inputmode="decimal" min="0" step="0.5" placeholder="0">
+      </div>
+      <div class="form-row">
+        <span class="form-label">備考</span>
+        <input type="text" id="edit-note" class="form-input" placeholder="（任意）">
+      </div>
+    </div>
+    <div class="edit-actions">
+      <button class="edit-btn cancel" onclick="closeEditModal()">キャンセル</button>
+      <button class="edit-btn save"   onclick="saveEdit()">保存する</button>
+    </div>
+  </div>
+</div>
 
 <!-- 電卓モーダル（共通） -->
 <div id="calc-overlay" onclick="calcOverlayClick(event)">
@@ -753,6 +870,134 @@
       el.src = src;
       document.body.appendChild(el);
     });
+  }
+
+  // ========== 仕入れ サブタブ ==========
+  let currentPurTab = 'input';
+  let historyLoaded = false;
+
+  function switchPurTab(tab) {
+    currentPurTab = tab;
+    document.querySelectorAll('.pur-sub-tab').forEach(b =>
+      b.classList.toggle('active', b.textContent.includes(tab === 'input' ? '新規' : '履歴')));
+    const isInput = tab === 'input';
+    document.getElementById('pur-input-panel').style.display   = isInput ? '' : 'none';
+    document.getElementById('pur-history-panel').style.display = isInput ? 'none' : '';
+    document.getElementById('pur-submit-area').style.display   = isInput && purLoaded ? '' : 'none';
+    if (!isInput && !historyLoaded) loadHistory();
+  }
+
+  // ========== 仕入れ履歴 ==========
+  function loadHistory() {
+    document.getElementById('pur-hist-loading').style.display = 'block';
+    document.getElementById('pur-hist-list').innerHTML = '';
+    jsonpRequest('getPurchaseLogs', { limit: 50 })
+      .then(d => {
+        document.getElementById('pur-hist-loading').style.display = 'none';
+        if (d.error) { showToast(d.error); return; }
+        renderHistory(d.rows);
+        historyLoaded = true;
+      })
+      .catch(err => {
+        document.getElementById('pur-hist-loading').style.display = 'none';
+        showToast('読み込みエラー: ' + (err.message || String(err)));
+      });
+  }
+
+  function renderHistory(rows) {
+    const list = document.getElementById('pur-hist-list');
+    list.innerHTML = '';
+    if (!rows.length) {
+      list.innerHTML = '<div style="text-align:center;padding:40px;color:#aaa">履歴がありません</div>';
+      return;
+    }
+    rows.forEach(r => {
+      const item = document.createElement('div');
+      item.className = 'history-item';
+      item.innerHTML = `
+        <div class="history-header">
+          <span class="history-date">${escHtml(r.date)}</span>
+          <span class="history-slip">${r.slipNo ? '伝票 ' + escHtml(r.slipNo) : ''}</span>
+        </div>
+        <div class="history-name">${escHtml(r.name)}</div>
+        <div class="history-sub">${escHtml(r.supplier)}${r.note ? '　' + escHtml(r.note) : ''}</div>
+        <div class="history-qty">${r.qty} ${escHtml(r.unit)}</div>
+        <div class="history-actions">
+          <button class="hist-btn edit"   onclick='openEditModal(${JSON.stringify(r)})'>修正</button>
+          <button class="hist-btn delete" onclick="confirmDelete(${r.rowNum}, '${escHtml(r.name)}')">削除</button>
+        </div>`;
+      list.appendChild(item);
+    });
+  }
+
+  // ========== 修正モーダル ==========
+  let editRowNum = null;
+
+  function openEditModal(r) {
+    editRowNum = r.rowNum;
+    document.getElementById('edit-title').textContent = '仕入れを修正';
+    document.getElementById('edit-date').value  = r.date;
+    document.getElementById('edit-slip').value  = r.slipNo;
+    document.getElementById('edit-name').value  = r.name;
+    document.getElementById('edit-qty').value   = r.qty;
+    document.getElementById('edit-note').value  = r.note;
+    document.getElementById('edit-overlay').classList.add('open');
+  }
+
+  function closeEditModal() {
+    document.getElementById('edit-overlay').classList.remove('open');
+    editRowNum = null;
+  }
+
+  function editOverlayClick(e) {
+    if (e.target === document.getElementById('edit-overlay')) closeEditModal();
+  }
+
+  function saveEdit() {
+    if (!editRowNum) return;
+    const qty = parseFloat(document.getElementById('edit-qty').value);
+    if (!qty || qty <= 0) { showToast('数量を入力してください'); return; }
+
+    const data = {
+      rowNum: editRowNum,
+      date:   document.getElementById('edit-date').value,
+      slipNo: document.getElementById('edit-slip').value.trim(),
+      name:   document.getElementById('edit-name').value,
+      qty,
+      note:   document.getElementById('edit-note').value.trim(),
+    };
+
+    const btn = document.querySelector('#edit-modal .edit-btn.save');
+    btn.disabled = true; btn.textContent = '保存中...';
+
+    jsonpRequest('updatePurchaseLog', { data: JSON.stringify(data) })
+      .then(r => {
+        btn.disabled = false; btn.textContent = '保存する';
+        if (r.success) {
+          closeEditModal();
+          historyLoaded = false;
+          loadHistory();
+          showToast(r.message);
+        } else { showToast('エラー: ' + r.message); }
+      })
+      .catch(err => {
+        btn.disabled = false; btn.textContent = '保存する';
+        showToast('送信エラー: ' + (err.message || String(err)));
+      });
+  }
+
+  // ========== 削除確認 ==========
+  function confirmDelete(rowNum, name) {
+    if (!confirm(`「${name}」の仕入れ記録を削除しますか？\nこの操作は取り消せません。`)) return;
+    jsonpRequest('deletePurchaseLog', { rowNum })
+      .then(r => {
+        if (r.success) {
+          historyLoaded = false;
+          loadHistory();
+          showToast(r.message);
+        } else { showToast('エラー: ' + r.message); }
+      })
+      .catch(err => showToast('エラー: ' + (err.message || String(err))));
   }
 
   // ========== 電卓（共通） ==========
