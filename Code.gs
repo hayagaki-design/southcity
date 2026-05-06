@@ -594,11 +594,8 @@ function doGet(e) {
     return _buildApiResponse(saveInventory(entries), callback);
   }
 
-  // HTML画面 → ContentServiceで返すことでGoogleの認証をバイパス
-  const url  = ScriptApp.getService().getUrl();
-  const tmpl = HtmlService.createTemplateFromFile('index');
-  tmpl.scriptUrl = url;
-  const html = tmpl.evaluate().getContent();
+  // HTML画面（テンプレート評価を避けてそのまま配信）
+  const html = HtmlService.createHtmlOutputFromFile('index').getContent();
   return ContentService
     .createTextOutput(html)
     .setMimeType(ContentService.MimeType.HTML);
