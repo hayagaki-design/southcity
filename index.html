@@ -685,16 +685,36 @@
       .then(r => {
         btn.disabled = false; btn.textContent = '一括送信'; btn.classList.remove('saving');
         if (r.success) {
-          document.getElementById('product-list').style.display    = 'none';
-          document.getElementById('inv-submit-area').style.display = 'none';
-          document.getElementById('inv-done').style.display        = 'block';
-          document.getElementById('inv-done-msg').textContent      = r.message + '\nスプレッドシートに自動反映されました。';
+          hideSubmittedInventoryCards();
+          updateProgress();
+          showToast((r.message || '送信しました') + ' 入力済みの商品を一覧から外しました。');
         } else { showToast('エラー: ' + r.message); }
       })
       .catch(err => {
         btn.disabled = false; btn.textContent = '一括送信'; btn.classList.remove('saving');
         showToast('送信エラー: ' + (err.message || String(err)));
       });
+  }
+
+  function hideSubmittedInventoryCards() {
+    const list = document.getElementById('product-list');
+    list.querySelectorAll('.product-card').forEach(card => {
+      const inp = card.querySelector('.stock-input');
+      if (inp && inp.value.trim() !== '') card.remove();
+    });
+
+    list.querySelectorAll('.category-header').forEach(header => {
+      let sib = header.nextElementSibling;
+      let hasCard = false;
+      while (sib && !sib.classList.contains('category-header')) {
+        if (sib.classList.contains('product-card')) {
+          hasCard = true;
+          break;
+        }
+        sib = sib.nextElementSibling;
+      }
+      header.style.display = hasCard ? '' : 'none';
+    });
   }
 
   // ========== 仕入れ：商品読み込み ==========
