@@ -52,6 +52,34 @@
       text-align: right;
     }
 
+    /* 月選択バー */
+    .month-tabs {
+      display: flex;
+      gap: 8px;
+      padding: 10px 12px;
+      background: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .month-tab {
+      flex-shrink: 0;
+      padding: 8px 18px;
+      border-radius: 20px;
+      border: 2px solid #ddd;
+      background: #f5f5f5;
+      font-size: 15px;
+      font-weight: 600;
+      color: #555;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .month-tab.active {
+      background: #1565C0;
+      border-color: #1565C0;
+      color: #fff;
+    }
+
     /* カテゴリ見出し */
     .category-header {
       background: #E8EAF6;
@@ -369,6 +397,8 @@
   <div class="progress-label" id="progress-label">0 / 0 件入力済み</div>
 </header>
 
+<div id="month-tabs" class="month-tabs" style="display:none"></div>
+
 <div id="loading">
   <div class="loading-spin"></div>
   データを読み込んでいます...
@@ -438,13 +468,58 @@
   ).trim();
 
   let allProducts = [];
+  let currentSheet = null;
 
   window.onload = function () {
     if (!SCRIPT_URL) {
       showError(new Error('API URLが未設定です'));
       return;
     }
-    jsonpRequest('getData').then(renderInventory).catch(showError);
+    // まずシート一覧を取得してタブを作成
+    jsonpRequest('getSheets')
+      .then(data => {
+        if (data.error) { showError(new Error(data.error)); return; }
+        renderMonthTabs(data.sheets, data.current);
+        currentSheet = data.current;
+        return jsonpRequest('getData', { sheet: currentSheet });
+      })
+      .then(data => { if (data) renderInventory(data); })
+      .catch(showError);
+  };
+
+  function renderMonthTabs(sheets, current) {
+    const wrap = document.getElementById('month-tabs');
+    wrap.innerHTML = '';
+    if (sheets.length <= 1) return; // シートが1つだけなら選択不要
+    wrap.style.display = 'flex';
+    sheets.slice().reverse().forEach(s => {
+      const btn = document.createElement('button');
+      btn.className   = 'month-tab' + (s.name === current ? ' active' : '');
+      btn.textContent = s.label;
+      btn.dataset.name = s.name;
+      btn.onclick = () => switchSheet(s.name);
+      wrap.appendChild(btn);
+    });
+  }
+
+  function switchSheet(sheetName) {
+    if (sheetName === currentSheet) return;
+    currentSheet = sheetName;
+
+    // タブのactive更新
+    document.querySelectorAll('.month-tab').forEach(b => {
+      b.classList.toggle('active', b.dataset.name === sheetName);
+    });
+
+    // 商品リストをリセットして再読み込み
+    document.getElementById('product-list').innerHTML = '';
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('error-msg').style.display = 'none';
+    document.getElementById('submit-area').style.display = 'none';
+
+    jsonpRequest('getData', { sheet: sheetName })
+      .then(renderInventory)
+      .catch(showError);
   };
 
   function showError(err) {
@@ -572,7 +647,7 @@
     const btn = document.getElementById('submit-btn');
     btn.disabled = true; btn.textContent = '送信中...'; btn.classList.add('saving');
 
-    jsonpRequest('save', { entries: JSON.stringify(entries) })
+    jsonpRequest('save', { entries: JSON.stringify(entries), sheet: currentSheet })
       .then(r => {
         btn.disabled = false; btn.textContent = '一括送信'; btn.classList.remove('saving');
         if (r.success) {
