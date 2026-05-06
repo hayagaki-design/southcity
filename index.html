@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>棚卸入力 - 西町GP前店</title>
+  <title>在庫管理 - 西町GP前店</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -15,7 +15,7 @@
       overflow-x: hidden;
     }
 
-    /* ヘッダー */
+    /* ── ヘッダー ── */
     header {
       background: #1565C0;
       color: #fff;
@@ -25,37 +25,47 @@
       z-index: 100;
       box-shadow: 0 2px 6px rgba(0,0,0,.25);
     }
-    .header-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-    }
-    header h1 { font-size: 19px; font-weight: bold; }
-    .header-month { font-size: 15px; opacity: .85; }
+    .header-top { display: flex; justify-content: space-between; align-items: baseline; }
+    header h1   { font-size: 19px; font-weight: bold; }
+    .header-sub { font-size: 15px; opacity: .85; }
     .progress-bar-wrap {
       background: rgba(255,255,255,.3);
-      border-radius: 4px;
-      height: 5px;
-      margin-top: 8px;
+      border-radius: 4px; height: 5px; margin-top: 8px;
     }
     .progress-bar {
-      background: #fff;
-      height: 5px;
-      border-radius: 4px;
-      transition: width .3s;
-      width: 0%;
+      background: #fff; height: 5px; border-radius: 4px;
+      transition: width .3s; width: 0%;
     }
-    .progress-label {
-      font-size: 13px;
-      opacity: .8;
-      margin-top: 4px;
-      text-align: right;
+    .progress-label { font-size: 13px; opacity: .8; margin-top: 4px; text-align: right; }
+
+    /* ── モード切替タブ ── */
+    .mode-tabs {
+      display: flex;
+      background: #0D47A1;
+      position: sticky;
+      top: 77px;
+      z-index: 90;
+    }
+    .mode-tab {
+      flex: 1;
+      padding: 12px 0;
+      font-size: 16px;
+      font-weight: 700;
+      color: rgba(255,255,255,.6);
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .mode-tab.active {
+      color: #fff;
+      border-bottom-color: #fff;
     }
 
-    /* 月選択バー */
+    /* ── 月選択バー（棚卸） ── */
     .month-tabs {
-      display: flex;
-      gap: 8px;
+      display: flex; gap: 8px;
       padding: 10px 12px;
       background: #fff;
       border-bottom: 1px solid #e0e0e0;
@@ -68,288 +78,182 @@
       border-radius: 20px;
       border: 2px solid #ddd;
       background: #f5f5f5;
-      font-size: 15px;
-      font-weight: 600;
-      color: #555;
+      font-size: 15px; font-weight: 600; color: #555;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
     }
-    .month-tab.active {
-      background: #1565C0;
-      border-color: #1565C0;
-      color: #fff;
-    }
+    .month-tab.active { background: #1565C0; border-color: #1565C0; color: #fff; }
 
-    /* カテゴリ見出し */
+    /* ── カテゴリ見出し ── */
     .category-header {
-      background: #E8EAF6;
-      color: #283593;
-      font-size: 15px;
-      font-weight: bold;
+      background: #E8EAF6; color: #283593;
+      font-size: 15px; font-weight: bold;
       padding: 11px 16px;
       border-left: 4px solid #3F51B5;
       margin-top: 10px;
       letter-spacing: .05em;
-      position: sticky;
-      top: 82px;
-      z-index: 50;
     }
+    .category-header.pur { background: #FFF3E0; color: #BF360C; border-left-color: #E65100; }
 
-    /* 商品カード（縦積みレイアウト） */
+    /* ── 商品カード ── */
     .product-card {
       background: #fff;
       margin: 8px 10px;
       border-radius: 14px;
       padding: 16px 16px;
       box-shadow: 0 1px 4px rgba(0,0,0,.08);
-      transition: background .2s;
     }
-    .product-card.entered {
-      background: #F1F8E9;
-      border-left: 4px solid #66BB6A;
-    }
+    .product-card.entered          { background: #F1F8E9; border-left: 4px solid #66BB6A; }
+    .product-card.pur-card.entered { background: #FFF8F0; border-left: 4px solid #FFA726; }
 
-    /* 商品名エリア */
-    .product-name {
-      font-size: 19px;
-      font-weight: 700;
-      line-height: 1.35;
-      margin-bottom: 3px;
+    .product-name { font-size: 19px; font-weight: 700; line-height: 1.35; margin-bottom: 3px; }
+    .product-spec { font-size: 14px; color: #888; }
+    .product-lot  {
+      display: inline-block; font-size: 13px; color: #1565C0;
+      background: #E3F2FD; border-radius: 6px; padding: 2px 10px;
+      margin-top: 5px; font-weight: 600;
     }
-    .product-spec {
-      font-size: 14px;
-      color: #888;
-    }
-    .product-lot {
-      display: inline-block;
-      font-size: 13px;
-      color: #1565C0;
-      background: #E3F2FD;
-      border-radius: 6px;
-      padding: 2px 10px;
-      margin-top: 5px;
-      font-weight: 600;
-    }
+    .product-lot.pur { color: #E65100; background: #FFF3E0; }
 
-    /* 入力コントロールエリア（カード内、下段） */
-    .input-area {
-      margin-top: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    /* ステッパー行 */
-    .stepper-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .stepper-label {
-      font-size: 13px;
-      color: #999;
-      width: 40px;
-      flex-shrink: 0;
-    }
-    .stepper {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex: 1;
-    }
+    /* ── 入力エリア ── */
+    .input-area { margin-top: 12px; display: flex; flex-direction: column; gap: 10px; }
+    .stepper-row { display: flex; align-items: center; gap: 8px; }
+    .stepper-label { font-size: 13px; color: #999; width: 40px; flex-shrink: 0; }
+    .stepper { display: flex; align-items: center; gap: 6px; flex: 1; }
     .step-btn {
-      width: 44px;
-      height: 48px;
-      font-size: 24px;
-      font-weight: bold;
-      border: 2px solid #ddd;
-      border-radius: 10px;
-      background: #f5f5f5;
-      color: #444;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
-      flex-shrink: 0;
+      width: 44px; height: 48px;
+      font-size: 24px; font-weight: bold;
+      border: 2px solid #ddd; border-radius: 10px;
+      background: #f5f5f5; color: #444;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      user-select: none; -webkit-tap-highlight-color: transparent; flex-shrink: 0;
     }
     .step-btn:active { background: #e0e0e0; }
-
     .stock-input {
-      flex: 1;
-      height: 48px;
-      font-size: 22px;
-      font-weight: bold;
-      text-align: center;
-      border: 2px solid #ddd;
-      border-radius: 10px;
-      background: #FFFDE7;
-      color: #333;
-      -webkit-appearance: none;
-      appearance: none;
-      min-width: 0;
-      width: 0;
+      flex: 1; height: 48px;
+      font-size: 22px; font-weight: bold; text-align: center;
+      border: 2px solid #ddd; border-radius: 10px;
+      background: #FFFDE7; color: #333;
+      -webkit-appearance: none; appearance: none;
+      min-width: 0; width: 0;
     }
-    .stock-input.filled {
-      border-color: #66BB6A;
-      background: #F1F8E9;
-      color: #2E7D32;
-    }
-    .unit-label {
-      font-size: 14px;
-      color: #666;
-      width: 28px;
-      flex-shrink: 0;
-    }
+    .stock-input.filled      { border-color: #66BB6A; background: #F1F8E9; color: #2E7D32; }
+    .stock-input.pur-input.filled { border-color: #FFA726; background: #FFF8F0; color: #E65100; }
+    .unit-label { font-size: 14px; color: #666; width: 28px; flex-shrink: 0; }
 
-    /* クイック選択ボタン行 */
-    .quick-row {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 6px;
-    }
+    /* ── クイック選択 ── */
+    .quick-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
     .quick-btn {
+      height: 44px; font-size: 16px; font-weight: 700;
+      border: 2px solid #ddd; border-radius: 10px;
+      background: #f5f5f5; color: #555;
+      cursor: pointer; -webkit-tap-highlight-color: transparent;
+    }
+    .quick-btn:active              { background: #E3F2FD; }
+    .quick-btn.active              { background: #1565C0; border-color: #1565C0; color: #fff; }
+    .quick-btn.pur-quick:active    { background: #FFF3E0; }
+    .quick-btn.pur-quick.active    { background: #E65100; border-color: #E65100; color: #fff; }
+
+    /* ── 仕入れフォーム上部 ── */
+    .pur-form-card {
+      background: #fff;
+      margin: 10px 10px 0;
+      border-radius: 14px;
+      padding: 14px 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.08);
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .form-row { display: flex; align-items: center; gap: 10px; }
+    .form-label { font-size: 14px; color: #888; width: 56px; flex-shrink: 0; }
+    .form-input {
+      flex: 1;
       height: 44px;
       font-size: 16px;
-      font-weight: 700;
-      border: 2px solid #ddd;
-      border-radius: 10px;
-      background: #f5f5f5;
-      color: #555;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
+      border: 2px solid #ddd; border-radius: 10px;
+      padding: 0 12px;
+      background: #FFFDE7; color: #333;
+      -webkit-appearance: none; appearance: none;
     }
-    .quick-btn:active { background: #E3F2FD; }
-    .quick-btn.active {
-      background: #1565C0;
-      border-color: #1565C0;
-      color: #fff;
-    }
+    .form-input:focus { outline: none; border-color: #E65100; background: #FFF8F0; }
 
-    /* ローディング・エラー */
-    #loading, #error-msg {
-      text-align: center;
-      padding: 60px 24px 40px;
-      font-size: 15px;
-      color: #888;
+    /* ── 仕入れ検索バー ── */
+    .pur-search-wrap {
+      padding: 10px 10px 0;
     }
-    #error-msg { color: #c62828; }
+    .pur-search-input {
+      width: 100%; height: 46px;
+      font-size: 16px;
+      border: 2px solid #ddd; border-radius: 23px;
+      padding: 0 18px;
+      background: #fff;
+      -webkit-appearance: none; appearance: none;
+    }
+    .pur-search-input:focus { outline: none; border-color: #E65100; }
+
+    /* ── ローディング・エラー ── */
+    #inv-loading, #pur-loading, #inv-error {
+      text-align: center; padding: 60px 24px 40px;
+      font-size: 15px; color: #888;
+    }
+    #inv-error { color: #c62828; }
     .loading-spin {
-      width: 36px;
-      height: 36px;
-      border: 4px solid #ddd;
-      border-top-color: #1565C0;
-      border-radius: 50%;
-      animation: spin .8s linear infinite;
+      width: 36px; height: 36px;
+      border: 4px solid #ddd; border-top-color: #1565C0;
+      border-radius: 50%; animation: spin .8s linear infinite;
       margin: 0 auto 16px;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* 送信ボタン */
+    /* ── 送信ボタン ── */
     .submit-area {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: #fff;
-      padding: 10px 16px 14px;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #fff; padding: 10px 16px 14px;
       box-shadow: 0 -2px 10px rgba(0,0,0,.12);
     }
     .submit-btn {
-      width: 100%;
-      background: #1565C0;
-      color: #fff;
-      border: none;
-      border-radius: 12px;
-      height: 56px;
-      font-size: 19px;
-      font-weight: bold;
-      cursor: pointer;
-      letter-spacing: .05em;
+      width: 100%; border: none; border-radius: 12px;
+      height: 56px; font-size: 19px; font-weight: bold;
+      cursor: pointer; letter-spacing: .05em;
+      background: #1565C0; color: #fff;
     }
-    .submit-btn:disabled { background: #90CAF9; }
-    .submit-btn.saving   { background: #FB8C00; }
-    .skip-note {
-      font-size: 11px;
-      color: #aaa;
-      text-align: center;
-      margin-top: 5px;
-    }
+    .submit-btn.pur    { background: #E65100; }
+    .submit-btn:disabled { opacity: .5; }
+    .submit-btn.saving { background: #FB8C00; }
+    .skip-note { font-size: 11px; color: #aaa; text-align: center; margin-top: 5px; }
 
-    /* 完了画面 */
-    #done-screen {
-      display: none;
-      text-align: center;
-      padding: 80px 24px;
+    /* ── 完了画面 ── */
+    .done-screen {
+      display: none; text-align: center; padding: 80px 24px;
     }
-    #done-screen .done-icon { font-size: 72px; }
-    #done-screen h2 { font-size: 22px; margin: 16px 0 8px; color: #2E7D32; }
-    #done-screen p  { color: #666; font-size: 14px; line-height: 1.7; }
+    .done-screen .done-icon { font-size: 72px; }
+    .done-screen h2 { font-size: 22px; margin: 16px 0 8px; color: #2E7D32; }
+    .done-screen p  { color: #666; font-size: 14px; line-height: 1.7; white-space: pre-line; }
     .back-btn {
-      margin-top: 28px;
-      background: #E8F5E9;
-      color: #2E7D32;
-      border: 2px solid #66BB6A;
-      border-radius: 12px;
-      padding: 14px 32px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
+      margin-top: 28px; display: inline-block;
+      background: #E8F5E9; color: #2E7D32;
+      border: 2px solid #66BB6A; border-radius: 12px;
+      padding: 14px 32px; font-size: 16px; font-weight: bold; cursor: pointer;
     }
 
-    /* 電卓モーダル */
+    /* ── 電卓モーダル ── */
     #calc-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.5);
-      z-index: 200;
-      align-items: flex-end;
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.5); z-index: 200; align-items: flex-end;
     }
     #calc-overlay.open { display: flex; }
     #calc-modal {
-      background: #fff;
-      width: 100%;
+      background: #fff; width: 100%;
       border-radius: 24px 24px 0 0;
       padding: 12px 12px 24px;
       box-shadow: 0 -4px 24px rgba(0,0,0,.2);
     }
-    #calc-handle {
-      width: 40px; height: 4px;
-      background: #ddd; border-radius: 2px;
-      margin: 0 auto 12px;
-    }
-    #calc-title {
-      font-size: 14px;
-      color: #888;
-      text-align: center;
-      margin-bottom: 8px;
-      font-weight: 600;
-    }
-    #calc-display {
-      background: #f5f5f5;
-      border-radius: 12px;
-      padding: 10px 16px;
-      margin-bottom: 12px;
-      text-align: right;
-    }
+    #calc-handle { width: 40px; height: 4px; background: #ddd; border-radius: 2px; margin: 0 auto 12px; }
+    #calc-title  { font-size: 14px; color: #888; text-align: center; margin-bottom: 8px; font-weight: 600; }
+    #calc-display { background: #f5f5f5; border-radius: 12px; padding: 10px 16px; margin-bottom: 12px; text-align: right; }
     #calc-expr  { font-size: 14px; color: #aaa; min-height: 20px; word-break: break-all; }
     #calc-value { font-size: 34px; font-weight: bold; color: #111; line-height: 1.2; }
-    .calc-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 7px;
-    }
-    .calc-btn {
-      height: 52px;
-      border: none;
-      border-radius: 12px;
-      font-size: 20px;
-      font-weight: 600;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-    }
+    .calc-grid  { display: grid; grid-template-columns: repeat(4,1fr); gap: 7px; }
+    .calc-btn   { height: 52px; border: none; border-radius: 12px; font-size: 20px; font-weight: 600; cursor: pointer; -webkit-tap-highlight-color: transparent; }
     .calc-btn:active { filter: brightness(.88); }
     .calc-btn.num    { background: #f0f0f0; color: #222; }
     .calc-btn.op     { background: #E8EAF6; color: #283593; }
@@ -359,22 +263,13 @@
     .calc-btn.set    { background: #E8F5E9; color: #2E7D32; font-size: 17px; }
     .calc-btn.cancel { background: #f0f0f0; color: #666; font-size: 16px; }
 
-    /* トースト */
+    /* ── トースト ── */
     #toast {
-      position: fixed;
-      bottom: 90px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #323232;
-      color: #fff;
-      padding: 10px 22px;
-      border-radius: 24px;
-      font-size: 13px;
-      opacity: 0;
-      transition: opacity .3s;
-      pointer-events: none;
-      white-space: nowrap;
-      z-index: 300;
+      position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+      background: #323232; color: #fff;
+      padding: 10px 22px; border-radius: 24px;
+      font-size: 13px; opacity: 0; transition: opacity .3s;
+      pointer-events: none; white-space: nowrap; z-index: 300;
     }
     #toast.show { opacity: 1; }
   </style>
@@ -383,42 +278,83 @@
 
 <header>
   <div class="header-top">
-    <h1>棚卸入力　西町GP前店</h1>
-    <span class="header-month" id="header-month">読込中...</span>
+    <h1>在庫管理　西町GP前店</h1>
+    <span class="header-sub" id="header-sub">読込中...</span>
   </div>
-  <div class="progress-bar-wrap">
-    <div class="progress-bar" id="progress-bar"></div>
+  <div id="inv-progress-wrap">
+    <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+    <div class="progress-label" id="progress-label">0 / 0 件入力済み</div>
   </div>
-  <div class="progress-label" id="progress-label">0 / 0 件入力済み</div>
 </header>
 
-<div id="month-tabs" class="month-tabs" style="display:none"></div>
-
-<div id="loading">
-  <div class="loading-spin"></div>
-  データを読み込んでいます...
-</div>
-<div id="error-msg" style="display:none"></div>
-<div id="product-list"></div>
-<div id="done-screen">
-  <div class="done-icon">✅</div>
-  <h2>送信完了！</h2>
-  <p id="done-message"></p>
-  <button class="back-btn" onclick="location.reload()">続けて入力する</button>
+<div class="mode-tabs">
+  <button class="mode-tab active" data-mode="inventory" onclick="switchMode('inventory')">📦 棚卸</button>
+  <button class="mode-tab"        data-mode="purchase"  onclick="switchMode('purchase')">🚚 仕入れ</button>
 </div>
 
-<div class="submit-area" id="submit-area" style="display:none">
-  <button class="submit-btn" id="submit-btn" onclick="submitInventory()">一括送信</button>
+<!-- ========== 棚卸セクション ========== -->
+<div id="inv-section">
+  <div id="month-tabs" class="month-tabs" style="display:none"></div>
+  <div id="inv-loading"><div class="loading-spin"></div>データを読み込んでいます...</div>
+  <div id="inv-error" style="display:none"></div>
+  <div id="product-list"></div>
+  <div class="done-screen" id="inv-done">
+    <div class="done-icon">✅</div>
+    <h2>送信完了！</h2>
+    <p id="inv-done-msg"></p>
+    <button class="back-btn" onclick="location.reload()">続けて入力する</button>
+  </div>
+</div>
+
+<!-- ========== 仕入れセクション ========== -->
+<div id="pur-section" style="display:none">
+  <div class="pur-form-card">
+    <div class="form-row">
+      <span class="form-label">納品日</span>
+      <input type="date" id="pur-date" class="form-input">
+    </div>
+    <div class="form-row">
+      <span class="form-label">伝票No.</span>
+      <input type="text" id="pur-slip" class="form-input" placeholder="（任意）">
+    </div>
+    <div class="form-row">
+      <span class="form-label">備考</span>
+      <input type="text" id="pur-note" class="form-input" placeholder="（任意）">
+    </div>
+  </div>
+  <div class="pur-search-wrap">
+    <input type="search" id="pur-search" class="pur-search-input"
+      placeholder="🔍 商品名で絞り込み" oninput="filterPurList()" autocomplete="off">
+  </div>
+  <div id="pur-loading" style="display:none"><div class="loading-spin"></div>読み込み中...</div>
+  <div id="pur-product-list"></div>
+  <div class="done-screen" id="pur-done">
+    <div class="done-icon">✅</div>
+    <h2>記録完了！</h2>
+    <p id="pur-done-msg"></p>
+    <button class="back-btn" onclick="resetPurchase()">続けて入力する</button>
+  </div>
+</div>
+
+<!-- 棚卸 送信エリア -->
+<div class="submit-area" id="inv-submit-area" style="display:none">
+  <button class="submit-btn" id="inv-submit-btn" onclick="submitInventory()">一括送信</button>
   <div class="skip-note">※未入力の商品は送信されません</div>
+</div>
+
+<!-- 仕入れ 送信エリア -->
+<div class="submit-area" id="pur-submit-area" style="display:none">
+  <button class="submit-btn pur" id="pur-submit-btn" onclick="submitPurchase()">仕入れを記録する</button>
+  <div class="skip-note">※数量を入力した商品だけ記録されます</div>
 </div>
 
 <div id="toast"></div>
 
-<!-- 電卓モーダル -->
+<!-- 電卓モーダル（共通） -->
 <div id="calc-overlay" onclick="calcOverlayClick(event)">
   <div id="calc-modal">
     <div id="calc-handle"></div>
-    <div id="calc-title">現在庫を入力</div>
+    <div id="calc-title">数量を入力</div>
     <div id="calc-display">
       <div id="calc-expr"></div>
       <div id="calc-value">0</div>
@@ -428,26 +364,21 @@
       <button class="calc-btn del" onclick="calcDel()">⌫</button>
       <button class="calc-btn op"  onclick="calcOp('%')">％</button>
       <button class="calc-btn op"  onclick="calcOp('÷')">÷</button>
-
       <button class="calc-btn num" onclick="calcNum('7')">7</button>
       <button class="calc-btn num" onclick="calcNum('8')">8</button>
       <button class="calc-btn num" onclick="calcNum('9')">9</button>
       <button class="calc-btn op"  onclick="calcOp('×')">×</button>
-
       <button class="calc-btn num" onclick="calcNum('4')">4</button>
       <button class="calc-btn num" onclick="calcNum('5')">5</button>
       <button class="calc-btn num" onclick="calcNum('6')">6</button>
       <button class="calc-btn op"  onclick="calcOp('−')">−</button>
-
       <button class="calc-btn num" onclick="calcNum('1')">1</button>
       <button class="calc-btn num" onclick="calcNum('2')">2</button>
       <button class="calc-btn num" onclick="calcNum('3')">3</button>
       <button class="calc-btn op"  onclick="calcOp('+')">＋</button>
-
       <button class="calc-btn num" style="grid-column:span 2" onclick="calcNum('0')">0</button>
       <button class="calc-btn num" onclick="calcNum('.')">．</button>
       <button class="calc-btn eq"  onclick="calcEq()">=</button>
-
       <button class="calc-btn cancel" onclick="closeCalc()">キャンセル</button>
       <button class="calc-btn set" style="grid-column:span 3" onclick="calcSet()">この値をセット ✔</button>
     </div>
@@ -457,97 +388,104 @@
 <script>
   const TEMPLATE_SCRIPT_URL = '<?= scriptUrl ?>';
   const FIXED_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby6641CimYDtnyqor0ykjd6bqxPLzyn707cQpAogZ_xVHVNos39jHdcAuPa4RQyXpIx/exec';
-  const SCRIPT_URL = (
-    FIXED_SCRIPT_URL ||
-    (TEMPLATE_SCRIPT_URL.includes('<?=') ? '' : TEMPLATE_SCRIPT_URL)
-  ).trim();
+  const SCRIPT_URL = (FIXED_SCRIPT_URL || (TEMPLATE_SCRIPT_URL.includes('<?=') ? '' : TEMPLATE_SCRIPT_URL)).trim();
 
-  let allProducts = [];
   let currentSheet = null;
+  let currentMode  = 'inventory';
+  let purLoaded    = false;
 
+  // ========== 初期化 ==========
   window.onload = function () {
-    if (!SCRIPT_URL) {
-      showError(new Error('API URLが未設定です'));
-      return;
-    }
-    // まずシート一覧を取得してタブを作成
+    if (!SCRIPT_URL) { showInvError(new Error('API URLが未設定です')); return; }
+    // 仕入れ日をデフォルト今日に
+    document.getElementById('pur-date').value = new Date().toISOString().slice(0, 10);
+    // 棚卸データ読み込み
     jsonpRequest('getSheets')
-      .then(data => {
-        if (data.error) { showError(new Error(data.error)); return; }
-        renderMonthTabs(data.sheets, data.current);
-        currentSheet = data.current;
+      .then(d => {
+        if (d.error) { showInvError(new Error(d.error)); return null; }
+        renderMonthTabs(d.sheets, d.current);
+        currentSheet = d.current;
         return jsonpRequest('getData', { sheet: currentSheet });
       })
-      .then(data => { if (data) renderInventory(data); })
-      .catch(showError);
+      .then(d => { if (d) renderInventory(d); })
+      .catch(showInvError);
   };
 
+  // ========== モード切替 ==========
+  function switchMode(mode) {
+    currentMode = mode;
+    document.querySelectorAll('.mode-tab').forEach(b =>
+      b.classList.toggle('active', b.dataset.mode === mode));
+    const isInv = mode === 'inventory';
+    document.getElementById('inv-section').style.display      = isInv ? '' : 'none';
+    document.getElementById('pur-section').style.display      = isInv ? 'none' : '';
+    document.getElementById('inv-submit-area').style.display  = isInv ? '' : 'none';
+    document.getElementById('pur-submit-area').style.display  = isInv ? 'none' : (purLoaded ? '' : 'none');
+    document.getElementById('inv-progress-wrap').style.display = isInv ? '' : 'none';
+    document.getElementById('header-sub').textContent         = isInv
+      ? (document.getElementById('header-sub').dataset.invSub || '')
+      : '仕入れ入力';
+    if (!isInv && !purLoaded) loadPurchaseProducts();
+  }
+
+  // ========== 棚卸：月タブ ==========
   function renderMonthTabs(sheets, current) {
     const wrap = document.getElementById('month-tabs');
     wrap.innerHTML = '';
-    if (sheets.length <= 1) return; // シートが1つだけなら選択不要
+    if (sheets.length <= 1) return;
     wrap.style.display = 'flex';
     sheets.slice().reverse().forEach(s => {
       const btn = document.createElement('button');
-      btn.className   = 'month-tab' + (s.name === current ? ' active' : '');
-      btn.textContent = s.label;
+      btn.className    = 'month-tab' + (s.name === current ? ' active' : '');
+      btn.textContent  = s.label;
       btn.dataset.name = s.name;
-      btn.onclick = () => switchSheet(s.name);
+      btn.onclick      = () => switchSheet(s.name);
       wrap.appendChild(btn);
     });
   }
 
-  function switchSheet(sheetName) {
-    if (sheetName === currentSheet) return;
-    currentSheet = sheetName;
-
-    // タブのactive更新
-    document.querySelectorAll('.month-tab').forEach(b => {
-      b.classList.toggle('active', b.dataset.name === sheetName);
-    });
-
-    // 商品リストをリセットして再読み込み
+  function switchSheet(name) {
+    if (name === currentSheet) return;
+    currentSheet = name;
+    document.querySelectorAll('.month-tab').forEach(b =>
+      b.classList.toggle('active', b.dataset.name === name));
     document.getElementById('product-list').innerHTML = '';
-    document.getElementById('loading').style.display = 'block';
-    document.getElementById('error-msg').style.display = 'none';
-    document.getElementById('submit-area').style.display = 'none';
-
-    jsonpRequest('getData', { sheet: sheetName })
-      .then(renderInventory)
-      .catch(showError);
-  };
-
-  function showError(err) {
-    document.getElementById('loading').style.display   = 'none';
-    document.getElementById('error-msg').style.display = 'block';
-    document.getElementById('error-msg').textContent   = err.message || String(err);
+    document.getElementById('inv-loading').style.display  = 'block';
+    document.getElementById('inv-error').style.display    = 'none';
+    document.getElementById('inv-submit-area').style.display = 'none';
+    jsonpRequest('getData', { sheet: name }).then(renderInventory).catch(showInvError);
   }
 
-  function renderInventory(data) {
-    document.getElementById('loading').style.display = 'none';
-    if (data.error) { showError(new Error(data.error)); return; }
+  function showInvError(err) {
+    document.getElementById('inv-loading').style.display = 'none';
+    document.getElementById('inv-error').style.display   = 'block';
+    document.getElementById('inv-error').textContent     = err.message || String(err);
+  }
 
-    document.getElementById('header-month').textContent = data.month + ' 棚卸';
-    document.getElementById('submit-area').style.display = 'block';
+  // ========== 棚卸：商品レンダリング ==========
+  function renderInventory(data) {
+    document.getElementById('inv-loading').style.display = 'none';
+    if (data.error) { showInvError(new Error(data.error)); return; }
+
+    const sub = data.month + ' 棚卸';
+    document.getElementById('header-sub').textContent        = sub;
+    document.getElementById('header-sub').dataset.invSub     = sub;
+    document.getElementById('inv-submit-area').style.display = 'block';
 
     const list = document.getElementById('product-list');
-    allProducts = [];
+    list.innerHTML = '';
 
     data.categories.forEach(cat => {
-      const header = document.createElement('div');
-      header.className   = 'category-header';
-      header.textContent = cat.name;
-      list.appendChild(header);
+      const h = document.createElement('div');
+      h.className = 'category-header'; h.textContent = cat.name;
+      list.appendChild(h);
 
       cat.products.forEach(p => {
-        allProducts.push(p.name);
-        const stockVal = p.stock !== null ? p.stock : '';
+        const sv  = p.stock !== null ? p.stock : '';
+        const qv  = v => sv !== '' && Math.round(parseFloat(sv)*100)/100 === v ? 'active' : '';
         const card = document.createElement('div');
         card.className    = 'product-card' + (p.stock !== null ? ' entered' : '');
         card.dataset.name = p.name;
-
-        const qv = v => stockVal !== '' && Math.round(parseFloat(stockVal)*100)/100 === v ? 'active' : '';
-
         card.innerHTML = `
           <div class="product-name">${escHtml(p.name)}</div>
           ${p.spec ? `<div class="product-spec">${escHtml(p.spec)}</div>` : ''}
@@ -556,101 +494,82 @@
             <div class="stepper-row">
               <div class="stepper-label">現在庫</div>
               <div class="stepper">
-                <button class="step-btn" onclick="stepValue(this,-0.25)" type="button">－</button>
-                <input
-                  class="stock-input${stockVal !== '' ? ' filled' : ''}"
-                  type="number"
-                  inputmode="decimal"
-                  min="0"
-                  step="0.25"
-                  placeholder="－"
-                  value="${stockVal}"
+                <button class="step-btn" onclick="invStep(this,-0.25)" type="button">－</button>
+                <input class="stock-input${sv !== '' ? ' filled' : ''}"
+                  type="number" inputmode="decimal" min="0" step="0.25"
+                  placeholder="－" value="${sv}"
                   data-name="${escHtml(p.name)}"
-                  onchange="onInputChange(this)"
-                  oninput="onInputChange(this)"
-                  onfocus="openCalc(this)"
-                  readonly
-                >
-                <button class="step-btn" onclick="stepValue(this,0.25)" type="button">＋</button>
+                  onchange="onInvChange(this)" oninput="onInvChange(this)"
+                  onfocus="openCalc(this)" readonly>
+                <button class="step-btn" onclick="invStep(this,0.25)" type="button">＋</button>
               </div>
               <div class="unit-label">${escHtml(p.unit)}</div>
             </div>
             <div class="quick-row">
-              <button class="quick-btn ${qv(0.25)}" onclick="setQuick(this,0.25)" type="button">¼</button>
-              <button class="quick-btn ${qv(0.5)}"  onclick="setQuick(this,0.5)"  type="button">½</button>
-              <button class="quick-btn ${qv(0.75)}" onclick="setQuick(this,0.75)" type="button">¾</button>
-              <button class="quick-btn ${qv(1)}"    onclick="setQuick(this,1)"    type="button">1</button>
-              <button class="quick-btn ${qv(2)}"    onclick="setQuick(this,2)"    type="button">2</button>
-              <button class="quick-btn ${qv(3)}"    onclick="setQuick(this,3)"    type="button">3</button>
+              <button class="quick-btn ${qv(0.25)}" onclick="invQuick(this,0.25)" type="button">¼</button>
+              <button class="quick-btn ${qv(0.5)}"  onclick="invQuick(this,0.5)"  type="button">½</button>
+              <button class="quick-btn ${qv(0.75)}" onclick="invQuick(this,0.75)" type="button">¾</button>
+              <button class="quick-btn ${qv(1)}"    onclick="invQuick(this,1)"    type="button">1</button>
+              <button class="quick-btn ${qv(2)}"    onclick="invQuick(this,2)"    type="button">2</button>
+              <button class="quick-btn ${qv(3)}"    onclick="invQuick(this,3)"    type="button">3</button>
             </div>
-          </div>
-        `;
+          </div>`;
         list.appendChild(card);
       });
     });
-
     updateProgress();
   }
 
-  function stepValue(btn, delta) {
-    const input = btn.closest('.stepper').querySelector('.stock-input');
-    const cur   = input.value === '' ? 0 : parseFloat(input.value);
-    input.value = Math.max(0, Math.round((cur + delta) * 100) / 100);
-    onInputChange(input);
-    syncQuickBtns(input);
+  function invStep(btn, delta) {
+    const inp = btn.closest('.stepper').querySelector('.stock-input');
+    const cur = inp.value === '' ? 0 : parseFloat(inp.value);
+    inp.value = Math.max(0, Math.round((cur + delta) * 100) / 100);
+    onInvChange(inp); syncInvQuick(inp);
   }
-
-  function setQuick(btn, val) {
-    const input = btn.closest('.input-area').querySelector('.stock-input');
-    input.value = parseFloat(input.value) === val ? '' : val;
-    onInputChange(input);
-    syncQuickBtns(input);
+  function invQuick(btn, val) {
+    const inp = btn.closest('.input-area').querySelector('.stock-input');
+    inp.value = parseFloat(inp.value) === val ? '' : val;
+    onInvChange(inp); syncInvQuick(inp);
   }
-
-  const QUICK_MAP = { '¼': 0.25, '½': 0.5, '¾': 0.75, '1': 1, '2': 2, '3': 3 };
-  function syncQuickBtns(input) {
-    const cur  = input.value === '' ? null : Math.round(parseFloat(input.value) * 100) / 100;
-    input.closest('.input-area').querySelectorAll('.quick-btn')
-      .forEach(b => b.classList.toggle('active', QUICK_MAP[b.textContent] === cur));
+  const INV_QUICK = { '¼':0.25, '½':0.5, '¾':0.75, '1':1, '2':2, '3':3 };
+  function syncInvQuick(inp) {
+    const cur = inp.value === '' ? null : Math.round(parseFloat(inp.value)*100)/100;
+    inp.closest('.input-area').querySelectorAll('.quick-btn')
+      .forEach(b => b.classList.toggle('active', INV_QUICK[b.textContent] === cur));
   }
-
-  function onInputChange(input) {
-    const filled = input.value.trim() !== '';
-    input.classList.toggle('filled', filled);
-    input.closest('.product-card').classList.toggle('entered', filled);
-    syncQuickBtns(input);
-    updateProgress();
+  function onInvChange(inp) {
+    const ok = inp.value.trim() !== '';
+    inp.classList.toggle('filled', ok);
+    inp.closest('.product-card').classList.toggle('entered', ok);
+    syncInvQuick(inp); updateProgress();
   }
-
   function updateProgress() {
-    const inputs = document.querySelectorAll('.stock-input');
-    const n      = Array.from(inputs).filter(i => i.value.trim() !== '').length;
-    const pct    = inputs.length === 0 ? 0 : Math.round(n / inputs.length * 100);
+    const inputs = document.querySelectorAll('#product-list .stock-input');
+    const n = Array.from(inputs).filter(i => i.value.trim() !== '').length;
+    const pct = inputs.length ? Math.round(n/inputs.length*100) : 0;
     document.getElementById('progress-bar').style.width   = pct + '%';
     document.getElementById('progress-label').textContent = `${n} / ${inputs.length} 件入力済み`;
   }
 
+  // ========== 棚卸：送信 ==========
   function submitInventory() {
-    const entries = Array.from(document.querySelectorAll('.stock-input'))
+    const entries = Array.from(document.querySelectorAll('#product-list .stock-input'))
       .filter(i => i.value.trim() !== '')
       .map(i => ({ name: i.dataset.name, stock: parseFloat(i.value) }));
-
     if (!entries.length) { showToast('入力された商品がありません'); return; }
 
-    const btn = document.getElementById('submit-btn');
+    const btn = document.getElementById('inv-submit-btn');
     btn.disabled = true; btn.textContent = '送信中...'; btn.classList.add('saving');
 
     jsonpRequest('save', { entries: JSON.stringify(entries), sheet: currentSheet })
       .then(r => {
         btn.disabled = false; btn.textContent = '一括送信'; btn.classList.remove('saving');
         if (r.success) {
-          document.getElementById('product-list').style.display = 'none';
-          document.getElementById('submit-area').style.display  = 'none';
-          document.getElementById('done-screen').style.display  = 'block';
-          document.getElementById('done-message').textContent   = r.message + '\nスプレッドシートに自動反映されました。';
-        } else {
-          showToast('エラー: ' + r.message);
-        }
+          document.getElementById('product-list').style.display  = 'none';
+          document.getElementById('inv-submit-area').style.display = 'none';
+          document.getElementById('inv-done').style.display       = 'block';
+          document.getElementById('inv-done-msg').textContent     = r.message + '\nスプレッドシートに自動反映されました。';
+        } else { showToast('エラー: ' + r.message); }
       })
       .catch(err => {
         btn.disabled = false; btn.textContent = '一括送信'; btn.classList.remove('saving');
@@ -658,82 +577,164 @@
       });
   }
 
+  // ========== 仕入れ：商品読み込み ==========
+  function loadPurchaseProducts() {
+    document.getElementById('pur-loading').style.display = 'block';
+    jsonpRequest('getProducts')
+      .then(d => {
+        document.getElementById('pur-loading').style.display = 'none';
+        if (d.error) { showToast(d.error); return; }
+        renderPurchaseProducts(d.categories);
+        purLoaded = true;
+        document.getElementById('pur-submit-area').style.display = 'block';
+      })
+      .catch(err => {
+        document.getElementById('pur-loading').style.display = 'none';
+        showToast('読み込みエラー: ' + (err.message || String(err)));
+      });
+  }
+
+  function renderPurchaseProducts(categories) {
+    const list = document.getElementById('pur-product-list');
+    list.innerHTML = '';
+    categories.forEach(cat => {
+      const h = document.createElement('div');
+      h.className = 'category-header pur'; h.textContent = cat.name;
+      list.appendChild(h);
+      cat.products.forEach(p => {
+        const card = document.createElement('div');
+        card.className       = 'product-card pur-card';
+        card.dataset.name    = p.name;
+        card.dataset.search  = p.name;
+        card.innerHTML = `
+          <div class="product-name">${escHtml(p.name)}</div>
+          ${p.spec ? `<div class="product-spec">${escHtml(p.spec)}</div>` : ''}
+          ${p.lot  ? `<span class="product-lot pur">1LOT = ${escHtml(p.lot)}</span>` : ''}
+          <div class="input-area">
+            <div class="stepper-row">
+              <div class="stepper-label">数量</div>
+              <div class="stepper">
+                <button class="step-btn" onclick="purStep(this,-1)" type="button">－</button>
+                <input class="stock-input pur-input"
+                  type="number" inputmode="decimal" min="0" step="1"
+                  placeholder="0" value=""
+                  data-name="${escHtml(p.name)}"
+                  onchange="onPurChange(this)" oninput="onPurChange(this)"
+                  onfocus="openCalc(this)" readonly>
+                <button class="step-btn" onclick="purStep(this,1)" type="button">＋</button>
+              </div>
+              <div class="unit-label">${escHtml(p.unit)}</div>
+            </div>
+            <div class="quick-row">
+              <button class="quick-btn pur-quick" onclick="purQuick(this,1)"  type="button">1</button>
+              <button class="quick-btn pur-quick" onclick="purQuick(this,2)"  type="button">2</button>
+              <button class="quick-btn pur-quick" onclick="purQuick(this,3)"  type="button">3</button>
+              <button class="quick-btn pur-quick" onclick="purQuick(this,4)"  type="button">4</button>
+              <button class="quick-btn pur-quick" onclick="purQuick(this,5)"  type="button">5</button>
+              <button class="quick-btn pur-quick" onclick="purQuick(this,10)" type="button">10</button>
+            </div>
+          </div>`;
+        list.appendChild(card);
+      });
+    });
+  }
+
+  function purStep(btn, delta) {
+    const inp = btn.closest('.stepper').querySelector('.pur-input');
+    const cur = inp.value === '' ? 0 : parseFloat(inp.value);
+    const next = Math.max(0, Math.round((cur + delta) * 100) / 100);
+    inp.value = next === 0 ? '' : next;
+    onPurChange(inp); syncPurQuick(inp);
+  }
+  function purQuick(btn, val) {
+    const inp = btn.closest('.input-area').querySelector('.pur-input');
+    inp.value = parseFloat(inp.value) === val ? '' : val;
+    onPurChange(inp); syncPurQuick(inp);
+  }
+  function syncPurQuick(inp) {
+    const cur = inp.value === '' ? null : parseFloat(inp.value);
+    inp.closest('.input-area').querySelectorAll('.pur-quick')
+      .forEach(b => b.classList.toggle('active', Number(b.textContent) === cur));
+  }
+  function onPurChange(inp) {
+    const ok = inp.value.trim() !== '' && parseFloat(inp.value) > 0;
+    inp.classList.toggle('filled', ok);
+    inp.closest('.product-card').classList.toggle('entered', ok);
+    syncPurQuick(inp);
+  }
+
+  function filterPurList() {
+    const q = document.getElementById('pur-search').value.trim().toLowerCase();
+    document.querySelectorAll('#pur-product-list .pur-card').forEach(c => {
+      c.style.display = (!q || c.dataset.search.toLowerCase().includes(q)) ? '' : 'none';
+    });
+    document.querySelectorAll('#pur-product-list .category-header').forEach(h => {
+      let sib = h.nextElementSibling, vis = false;
+      while (sib && !sib.classList.contains('category-header')) {
+        if (sib.style.display !== 'none') vis = true;
+        sib = sib.nextElementSibling;
+      }
+      h.style.display = vis ? '' : 'none';
+    });
+  }
+
+  // ========== 仕入れ：送信 ==========
+  function submitPurchase() {
+    const delivDate = document.getElementById('pur-date').value;
+    if (!delivDate) { showToast('納品日を入力してください'); return; }
+
+    const items = Array.from(document.querySelectorAll('.pur-input'))
+      .filter(i => i.value.trim() !== '' && parseFloat(i.value) > 0)
+      .map(i => ({ name: i.dataset.name, qty: parseFloat(i.value) }));
+    if (!items.length) { showToast('数量を入力した商品がありません'); return; }
+
+    const data = {
+      delivDate,
+      slipNo: document.getElementById('pur-slip').value.trim(),
+      note:   document.getElementById('pur-note').value.trim(),
+      items,
+    };
+
+    const btn = document.getElementById('pur-submit-btn');
+    btn.disabled = true; btn.textContent = '送信中...'; btn.classList.add('saving');
+
+    jsonpRequest('savePurchase', { data: JSON.stringify(data) })
+      .then(r => {
+        btn.disabled = false; btn.textContent = '仕入れを記録する'; btn.classList.remove('saving');
+        if (r.success) {
+          document.getElementById('pur-product-list').style.display = 'none';
+          document.getElementById('pur-submit-area').style.display  = 'none';
+          document.getElementById('pur-done').style.display         = 'block';
+          document.getElementById('pur-done-msg').textContent       = r.message + '\n仕入れログに記録されました。';
+        } else { showToast('エラー: ' + r.message); }
+      })
+      .catch(err => {
+        btn.disabled = false; btn.textContent = '仕入れを記録する'; btn.classList.remove('saving');
+        showToast('送信エラー: ' + (err.message || String(err)));
+      });
+  }
+
+  function resetPurchase() {
+    document.getElementById('pur-product-list').style.display = '';
+    document.getElementById('pur-submit-area').style.display  = 'block';
+    document.getElementById('pur-done').style.display         = 'none';
+    document.querySelectorAll('.pur-input').forEach(i => {
+      i.value = ''; i.classList.remove('filled');
+      i.closest('.product-card').classList.remove('entered');
+      syncPurQuick(i);
+    });
+    document.getElementById('pur-search').value = '';
+    document.getElementById('pur-slip').value   = '';
+    document.getElementById('pur-note').value   = '';
+    document.getElementById('pur-date').value   = new Date().toISOString().slice(0, 10);
+    filterPurList();
+  }
+
+  // ========== 共通ユーティリティ ==========
   function showToast(msg) {
     const t = document.getElementById('toast');
     t.textContent = msg; t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 3000);
-  }
-
-  // ============================================================
-  // 電卓
-  // ============================================================
-  let calcTarget = null, calcExpr = '', calcResult = '0', calcJustEq = false;
-
-  function openCalc(input) {
-    calcTarget = input; calcExpr = ''; calcJustEq = false;
-    calcResult = input.value !== '' ? input.value : '0';
-    _calcRefresh();
-    document.getElementById('calc-title').textContent =
-      (input.dataset.name || '') + '　現在庫を入力';
-    document.getElementById('calc-overlay').classList.add('open');
-  }
-  function closeCalc() {
-    document.getElementById('calc-overlay').classList.remove('open');
-    calcTarget = null;
-  }
-  function calcOverlayClick(e) {
-    if (e.target === document.getElementById('calc-overlay')) closeCalc();
-  }
-  function calcNum(ch) {
-    if (calcJustEq) { calcExpr = ''; calcJustEq = false; }
-    if (ch === '.') {
-      const tok = calcExpr.split(/[+\-×÷%]/);
-      if (tok[tok.length - 1].includes('.')) return;
-    }
-    calcExpr  += ch;
-    calcResult = _safeEval(calcExpr);
-    _calcRefresh();
-  }
-  function calcOp(op) {
-    calcJustEq = false;
-    if (/[+\-×÷%]$/.test(calcExpr)) calcExpr = calcExpr.slice(0, -1);
-    if (calcExpr === '') calcExpr = calcResult;
-    calcExpr  += op;
-    _calcRefresh();
-  }
-  function calcEq() {
-    if (!calcExpr) return;
-    calcResult = _safeEval(calcExpr);
-    calcExpr   = calcResult;
-    calcJustEq = true;
-    _calcRefresh();
-  }
-  function calcAC()  { calcExpr = ''; calcResult = '0'; calcJustEq = false; _calcRefresh(); }
-  function calcDel() {
-    calcJustEq = false;
-    calcExpr   = calcExpr.slice(0, -1);
-    calcResult = calcExpr === '' ? '0' : _safeEval(calcExpr);
-    _calcRefresh();
-  }
-  function calcSet() {
-    if (!calcTarget) { closeCalc(); return; }
-    const val = parseFloat(calcResult);
-    if (!isNaN(val) && val >= 0) {
-      calcTarget.value = Math.round(val * 10000) / 10000;
-      onInputChange(calcTarget);
-    }
-    closeCalc();
-  }
-  function _safeEval(expr) {
-    try {
-      const js = expr.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-').replace(/％/g,'/100');
-      const r  = Function('"use strict"; return (' + js + ')')();
-      return isFinite(r) ? String(Math.round(r * 10000) / 10000) : 'エラー';
-    } catch { return calcResult; }
-  }
-  function _calcRefresh() {
-    document.getElementById('calc-expr').textContent  = calcExpr || ' ';
-    document.getElementById('calc-value').textContent = calcResult;
   }
 
   function escHtml(s) {
@@ -747,11 +748,74 @@
       const src = SCRIPT_URL + (SCRIPT_URL.includes('?') ? '&' : '?') + qs.toString();
       const el  = document.createElement('script');
       const cleanup = () => { delete window[cb]; el.remove(); };
-      window[cb] = data => { cleanup(); resolve(data); };
+      window[cb]  = d  => { cleanup(); resolve(d); };
       el.onerror  = () => { cleanup(); reject(new Error('API呼び出しに失敗しました')); };
       el.src = src;
       document.body.appendChild(el);
     });
+  }
+
+  // ========== 電卓（共通） ==========
+  let calcTarget = null, calcExpr = '', calcResult = '0', calcJustEq = false;
+
+  function openCalc(inp) {
+    calcTarget = inp; calcExpr = ''; calcJustEq = false;
+    calcResult = inp.value !== '' ? inp.value : '0';
+    _calcRefresh();
+    document.getElementById('calc-title').textContent =
+      (inp.dataset.name || '') + '　数量を入力';
+    document.getElementById('calc-overlay').classList.add('open');
+  }
+  function closeCalc() {
+    document.getElementById('calc-overlay').classList.remove('open');
+    calcTarget = null;
+  }
+  function calcOverlayClick(e) {
+    if (e.target === document.getElementById('calc-overlay')) closeCalc();
+  }
+  function calcNum(ch) {
+    if (calcJustEq) { calcExpr = ''; calcJustEq = false; }
+    if (ch === '.') {
+      const tok = calcExpr.split(/[+\-×÷%]/);
+      if (tok[tok.length-1].includes('.')) return;
+    }
+    calcExpr += ch; calcResult = _safeEval(calcExpr); _calcRefresh();
+  }
+  function calcOp(op) {
+    calcJustEq = false;
+    if (/[+\-×÷%]$/.test(calcExpr)) calcExpr = calcExpr.slice(0,-1);
+    if (calcExpr === '') calcExpr = calcResult;
+    calcExpr += op; _calcRefresh();
+  }
+  function calcEq() {
+    if (!calcExpr) return;
+    calcResult = _safeEval(calcExpr); calcExpr = calcResult; calcJustEq = true; _calcRefresh();
+  }
+  function calcAC()  { calcExpr = ''; calcResult = '0'; calcJustEq = false; _calcRefresh(); }
+  function calcDel() {
+    calcJustEq = false; calcExpr = calcExpr.slice(0,-1);
+    calcResult = calcExpr === '' ? '0' : _safeEval(calcExpr); _calcRefresh();
+  }
+  function calcSet() {
+    if (!calcTarget) { closeCalc(); return; }
+    const val = parseFloat(calcResult);
+    if (!isNaN(val) && val >= 0) {
+      calcTarget.value = Math.round(val * 10000) / 10000;
+      if (calcTarget.classList.contains('pur-input')) onPurChange(calcTarget);
+      else onInvChange(calcTarget);
+    }
+    closeCalc();
+  }
+  function _safeEval(expr) {
+    try {
+      const js = expr.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-').replace(/％/g,'/100');
+      const r  = Function('"use strict"; return (' + js + ')')();
+      return isFinite(r) ? String(Math.round(r*10000)/10000) : 'エラー';
+    } catch { return calcResult; }
+  }
+  function _calcRefresh() {
+    document.getElementById('calc-expr').textContent  = calcExpr || ' ';
+    document.getElementById('calc-value').textContent = calcResult;
   }
 </script>
 </body>
