@@ -575,12 +575,23 @@ function refreshCurrentMonth() {
 // ウェブアプリのエントリーポイント
 function doGet(e) {
   const action = e.parameter && e.parameter.action;
+  const callback = e.parameter && e.parameter.callback;
 
-  // APIリクエスト → JSON返却（認証不要）
+  // APIリクエスト（JSON / JSONP）
   if (action === 'getData') {
-    return ContentService
-      .createTextOutput(JSON.stringify(getInventoryData()))
-      .setMimeType(ContentService.MimeType.JSON);
+    return _buildApiResponse(getInventoryData(), callback);
+  }
+
+  // JSONPで保存（GitHub Pages向け）
+  if (action === 'save') {
+    let entries = [];
+    try {
+      entries = JSON.parse((e.parameter && e.parameter.entries) || '[]');
+    } catch (err) {
+      const message = err && err.message ? err.message : String(err);
+      return _buildApiResponse({ success: false, message: `entriesのJSON解析に失敗: ${message}` }, callback);
+    }
+    return _buildApiResponse(saveInventory(entries), callback);
   }
 
   // HTML画面 → ContentServiceで返すことでGoogleの認証をバイパス
@@ -599,6 +610,19 @@ function doPost(e) {
   const result = saveInventory(data.entries);
   return ContentService
     .createTextOutput(JSON.stringify(result))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function _buildApiResponse(payload, callback) {
+  const body = JSON.stringify(payload);
+  if (callback) {
+    // JSONP（scriptタグ読み込み）でクロスオリジン制約を回避
+    return ContentService
+      .createTextOutput(`${callback}(${body});`)
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+  return ContentService
+    .createTextOutput(body)
     .setMimeType(ContentService.MimeType.JSON);
 }
 

@@ -421,8 +421,7 @@
       showError(new Error('API URLが未設定です。URLの末尾に ?api=【GASのWebアプリURL】 を付けて開いてください。'));
       return;
     }
-    fetch(SCRIPT_URL + '?action=getData')
-      .then(r => r.json())
+    jsonpRequest('getData')
       .then(renderInventory)
       .catch(showError);
   };
@@ -588,11 +587,7 @@
     btn.textContent = '送信中...';
     btn.classList.add('saving');
 
-    fetch(SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify({ entries }),
-    })
-      .then(r => r.json())
+    jsonpRequest('save', { entries: JSON.stringify(entries) })
       .then(onSaveSuccess)
       .catch(onSaveError);
   }
@@ -741,6 +736,33 @@
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;');
+  }
+
+  function jsonpRequest(action, params = {}) {
+    return new Promise((resolve, reject) => {
+      const callbackName = '__inventory_jsonp_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+      const query = new URLSearchParams({ action, callback: callbackName, ...params });
+      const src = SCRIPT_URL + (SCRIPT_URL.includes('?') ? '&' : '?') + query.toString();
+      const script = document.createElement('script');
+
+      const cleanup = () => {
+        delete window[callbackName];
+        script.remove();
+      };
+
+      window[callbackName] = (data) => {
+        cleanup();
+        resolve(data);
+      };
+
+      script.onerror = () => {
+        cleanup();
+        reject(new Error('API呼び出しに失敗しました'));
+      };
+
+      script.src = src;
+      document.body.appendChild(script);
+    });
   }
 </script>
 </body>
