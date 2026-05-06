@@ -589,7 +589,7 @@ function doGet(e) {
       entries = JSON.parse((e.parameter && e.parameter.entries) || '[]');
     } catch (err) {
       const message = err && err.message ? err.message : String(err);
-      return _buildApiResponse({ success: false, message: `entriesのJSON解析に失敗: ${message}` }, callback);
+      return _buildApiResponse({ success: false, message: 'entriesのJSON解析に失敗: ' + message }, callback);
     }
     return _buildApiResponse(saveInventory(entries), callback);
   }
@@ -618,7 +618,7 @@ function _buildApiResponse(payload, callback) {
   if (callback) {
     // JSONP（scriptタグ読み込み）でクロスオリジン制約を回避
     return ContentService
-      .createTextOutput(`${callback}(${body});`)
+      .createTextOutput(callback + '(' + body + ');')
       .setMimeType(ContentService.MimeType.JAVASCRIPT);
   }
   return ContentService
