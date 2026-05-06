@@ -594,11 +594,8 @@ function doGet(e) {
     return _buildApiResponse(saveInventory(entries), callback);
   }
 
-  // HTML画面（テンプレート評価を避けてそのまま配信）
-  const html = HtmlService.createHtmlOutputFromFile('index').getContent();
-  return ContentService
-    .createTextOutput(html)
-    .setMimeType(ContentService.MimeType.HTML);
+  // HTML画面は HtmlService でそのまま返す
+  return HtmlService.createHtmlOutputFromFile('index');
 }
 
 // 在庫保存（POSTリクエスト）
