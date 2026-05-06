@@ -685,7 +685,10 @@
       .then(r => {
         btn.disabled = false; btn.textContent = '一括送信'; btn.classList.remove('saving');
         if (r.success) {
-          showToast('✅ ' + r.message);
+          document.getElementById('product-list').style.display    = 'none';
+          document.getElementById('inv-submit-area').style.display = 'none';
+          document.getElementById('inv-done').style.display        = 'block';
+          document.getElementById('inv-done-msg').textContent      = r.message + '\nスプレッドシートに自動反映されました。';
         } else { showToast('エラー: ' + r.message); }
       })
       .catch(err => {
