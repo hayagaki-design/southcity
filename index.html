@@ -754,22 +754,22 @@
             <div class="stepper-row">
               <div class="stepper-label">数量</div>
               <div class="stepper">
-                <button class="step-btn" onclick="purStep(this,-1)" type="button">－</button>
+                <button class="step-btn" onclick="purStep(this,-0.5)" type="button">－</button>
                 <input class="stock-input pur-input"
-                  type="number" inputmode="decimal" min="0" step="1"
+                  type="number" inputmode="decimal" min="0" step="0.5"
                   placeholder="0" value=""
                   data-name="${escHtml(p.name)}"
                   onchange="onPurChange(this)" oninput="onPurChange(this)"
                   onfocus="openCalc(this)" readonly>
-                <button class="step-btn" onclick="purStep(this,1)" type="button">＋</button>
+                <button class="step-btn" onclick="purStep(this,0.5)" type="button">＋</button>
               </div>
               <div class="unit-label">${escHtml(p.unit)}</div>
             </div>
             <div class="quick-row">
+              <button class="quick-btn pur-quick" onclick="purQuick(this,0.5)" type="button">½</button>
               <button class="quick-btn pur-quick" onclick="purQuick(this,1)"  type="button">1</button>
               <button class="quick-btn pur-quick" onclick="purQuick(this,2)"  type="button">2</button>
               <button class="quick-btn pur-quick" onclick="purQuick(this,3)"  type="button">3</button>
-              <button class="quick-btn pur-quick" onclick="purQuick(this,4)"  type="button">4</button>
               <button class="quick-btn pur-quick" onclick="purQuick(this,5)"  type="button">5</button>
               <button class="quick-btn pur-quick" onclick="purQuick(this,10)" type="button">10</button>
             </div>
